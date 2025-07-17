@@ -1,0 +1,227 @@
+class Screen {
+    static Array bitArray;
+    static Array screenAddress;
+    static boolean color;
+
+    function void init(){
+        let screenAddress = 16384;
+        let color = true;
+
+        let bitArray = Array.new(17);
+        let bitArray[0] = 1;
+        let bitArray[1] = 2;
+        let bitArray[2] = 4;
+        let bitArray[3] = 8;
+        let bitArray[4] = 16;
+        let bitArray[5] = 32;
+        let bitArray[6] = 64;
+        let bitArray[7] = 128;
+        let bitArray[8] = 256;
+        let bitArray[9] = 512;
+        let bitArray[10] = 1024;
+        let bitArray[11] = 2048;
+        let bitArray[12] = 4096;
+        let bitArray[13] = 8192;
+        let bitArray[14] = 16384;
+        let bitArray[15] = 16384 + 16384;
+        let bitArray[16] = 0;
+        return ;
+    }
+
+    function void clearScreen(){
+        var int i;
+        let i = 0;
+
+        while(i + 4 < 8192){
+            let screenAddress[i] = false;
+            let screenAddress[i+1] = false;
+            let screenAddress[i+2] = false;
+            let screenAddress[i+3] = false;
+            let i = i + 4;
+        }
+
+        return ;
+    }
+
+    function void setColor(boolean b){
+        let color = b;
+        return ;
+    }
+
+    function void drawPixel(int x,int y){
+        var int address, mask, bitset;
+        let address = (y*32) + (x/16);
+        let bitset = x&15;
+        let mask = bitArray[bitset];
+
+        if(color){
+            let screenAddress[address] = screenAddress[address] | mask;
+        }
+        else{
+            let screenAddress[address] = screenAddress[address] & (~mask);
+        }
+        return ;
+    }
+
+    function void drawXLine(int x1, int x2, int y){//横向画直线辅助函数，如果这一层不调用会增大代码量
+        var int temp, address1, address2, mask_x1, mask_x2, mask, offset;
+        //min
+        if(x1>x2){
+            let temp = x1;
+            let x1 = x2;
+            let x2 = temp;
+        }
+
+        //x1 address
+        let address1 = (y*32)+(x1/16);
+        let address2 = (y*32)+(x2/16);
+
+        //offset
+        let offset = x1 & 15;
+        let mask_x1 = ~(bitArray[offset]-1);
+
+        let offset = x2 & 15;
+        let mask_x2 = ~(bitArray[offset]-1);
+
+        if(address1 = address2){
+            let mask = mask_x1 & mask_x2;
+            if(color){
+                let screenAddress[address1] = screenAddress[address1] | mask;
+            }
+            else{
+                let screenAddress[address1] = screenAddress[address1] & (~mask);
+            }
+        }
+        else{
+            if(color){
+                let screenAddress[address1] = screenAddress[address1] | mask_x1;
+                let screenAddress[address2] = screenAddress[address2] | mask_x2;
+            }
+            else{
+                let screenAddress[address1] = screenAddress[address1] | (~mask_x1);
+                let screenAddress[address2] = screenAddress[address2] | (~mask_x2);
+            }
+        }
+
+        if((address2 - address1) > 1){
+            let address1 = address1 + 1;
+            while(address2 >address1){
+                let screenAddress[address1] = color;
+                let address1 = address1 + 1;
+            }
+        }
+
+        return ;
+    }
+
+    function void drawYLine(int x, int y1, int y2){
+
+        var int temp, address, mask;
+
+        if (y1 > y2) {
+            let temp = y1;
+            let y1 = y2;
+            let y2 = temp;
+        }
+
+        let address = (y1 * 32) + (x / 16);
+        let mask = bitArray[x & 15];
+
+        while (~(y1 > y2)) {
+            if (color) {
+                let screenAddress[address] = screenAddress[address] | mask;
+            } else {
+                let screenAddress[address] = screenAddress[address] & ~mask;
+            }
+
+            let address = address + 32;
+            let y1 = y1 + 1;
+        }
+
+        return ;
+    }
+
+    function void drawLine(int x1, int y1, int x2, int y2){
+        var int dx, dy, a, b, temp;
+
+        if(x1 > x2){
+            let temp = x1;
+            let x1 = x2;
+            let x2 = temp;
+            let temp = y1;
+            let y1 = y2;
+            let y2 = temp;
+        }//x1=min(x1,x2)，减少函数过程调用
+
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+
+        if(dx = 0){
+            do Screen.drawYLine(x1,y1,y2);
+        }
+        else{
+            if(dy = 0){
+                do Screen.drawXLine(x1,x2,y1);
+            }
+        }
+
+        let a = 0;
+        let b = 0;
+        let temp = 0;
+
+        if(y2 > y1){
+            while (~(a > dx) & ~(b > dy)) {
+                do Screen.drawPixel(x1 + a, y1 + b);
+                
+                if (temp < 0) {
+                    let b = b + 1;
+                    let temp = temp + dx;
+                } else {
+                    let a = a + 1;
+                    let temp = temp - dy;
+                }
+            }
+        } 
+        else {
+            // y1 > y2
+            let dy = -dy;
+            while (~(a > dx) & ~(b > dy)) {
+                do Screen.drawPixel(x1 + a, y1 - b);
+                
+                if (temp < 0) {
+                    let a = a + 1;
+                    let temp = temp + dy;
+                } else {
+                    let b = b + 1;
+                    let temp = temp - dx;
+                }
+            }
+        }
+
+        return ;
+    }
+
+    function void drawRectangle(int x1, int y1, int x2, int y2){
+
+        while(~(y1>y2)){
+            do Screen.drawXLine(x1,x2,y1);
+        }
+        let y1 = y1 + 1;
+
+        return ;
+    }
+
+    function void drawCircle(int x,int y,int r){
+        var int dx, dy;
+
+        let dy = -r;
+        while( ~(dy > r) ) {
+            let dx = Math.sqrt((r*r) -(dy*dy));
+            do Screen.drawXLine( x-dx, x+dx, y+dy );
+            let dy = dy + 1;
+        }
+        return;
+    }
+    
+
+}

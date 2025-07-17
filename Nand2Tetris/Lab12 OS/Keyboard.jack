@@ -1,0 +1,51 @@
+class Keyboard {
+    function char keyPressed() {
+        return Memory.peek(24576); //在特定一个字内存区域输入
+    }
+
+    function char readChar() {
+        var char key;
+        let key = Keyboard.keyPressed();
+        while(key = 0){
+            let key = Keyboard.keyPressed();
+        }
+        while(~(Keyboard.keyPressed() = 0)){}
+        do Output.printChar(key);
+        return key;
+    }
+
+     function String readLine(String message) {
+        var String s;
+        var char c;
+
+        do Output.printString(message);
+        let s = String.new(80);
+
+        while (true) {
+            let c = Keyboard.readChar();
+
+            if (c = 128) {
+                do Output.println();
+                return s;
+            }
+
+            if (c = 129) {
+                do s.eraseLastChar();
+                do Output.backSpace();
+            } else {
+                let s = s.appendChar(c);
+            }
+        }
+        return 0;
+    }
+
+
+    function int readInt(String message) {
+        var String line;
+
+        let line = Keyboard.readLine(message);
+        return line.intValue();
+    }
+
+
+}

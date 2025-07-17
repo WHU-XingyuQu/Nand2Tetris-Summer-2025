@@ -1,0 +1,107 @@
+class Memory {
+    static Array memoryBase, freeList;
+
+    function void init(){
+        var int len ;
+        let memoryBase = 0;
+        let freeList = 2048;
+        let len = 16384 - 2048; 
+
+        //0: next segment
+        //1: block size
+        let freeList[0] = null;
+        let freeList[1] = len - 2;
+
+        return ;
+    }
+
+    function int peek(int address){
+        return memoryBase[address];
+    }
+
+    function void poke(int address, int value){
+        let memoryBase[address] = value;
+        return ;
+    }
+
+    function Array bestFit(int size) {
+        var Array temp, seg;
+        var int tempSize;
+
+        let tempSize = size + 2;
+        let temp = freeList;
+
+        //寻找空表
+        while (temp[1] < tempSize) {
+            // next address
+            if (temp[0] = null) {
+                do Sys.error(5);
+                return 0;
+            } 
+            else {
+                let temp = temp[0];
+            }
+        }
+
+        let temp[1] = temp[1] - tempSize;
+        let seg = temp + 2 + temp[1];
+        let seg[0] = null;
+        let seg[1] = size;
+
+        return seg;
+    }
+
+    function Array alloc(int size){
+        var int allocSize;
+        var Array seg;
+
+        let allocSize = size + 2;
+        if(freeList[1] > allocSize){
+            let freeList[1] = freeList[1] - allocSize;
+            let seg = freeList + freeList[1] +2;
+            let seg[0] = null;
+            let seg[1] = size;
+
+        }
+        else{
+            let seg = Memory.bestFit(size);
+        }
+
+        return seg + 2;
+    }
+
+    function void deAlloc(Array a) {
+        var Array seg, pre, next, temp;
+
+        let seg = a - 2;
+        let pre = freeList;
+        let next = freeList[0];
+
+        // 删除链表元素
+        while (~(next = null) & (next < seg)) {
+            let pre = next;
+            let next = next[0];
+        }
+
+        if (next = null) {
+            let seg[0] = null;
+            let pre[0] = seg;
+        } else {
+            let temp = pre[0];
+            let pre[0] = seg;
+            let seg[0] = temp;
+        }
+
+        // 优化：减少内存碎片
+        if ((seg + seg[1] + 2) = next) { 
+            let seg[1] = seg[1] + next[1] + 2;
+            let seg[0] = next[0];
+        }
+
+        if ((pre + pre[1] + 2) = seg) {
+            let pre[1] = pre[1] + seg[1] + 2;
+            let pre[0] = seg[0];
+        }
+        return;
+    }    
+}

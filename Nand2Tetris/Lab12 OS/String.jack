@@ -1,0 +1,111 @@
+class String {
+    field int len;
+    field int maxLen;
+    field Array chars;
+
+    constructor String new(int m){
+        if(m=0){
+            let maxLen = 1;
+        }
+        let len = 0;
+        let maxLen = m;
+        let chars = Array.new(maxLen);
+        return this;
+    }
+
+    method void dispose() {
+        let len = 0;
+        let maxLen = 0;
+        do chars.dispose();
+        return;
+    }
+
+    method int length() {
+        return len;
+    }
+
+    method char charAt(int index) {
+        return chars[index];
+    }
+
+    method void setCharAt(int index, char c) {
+        let chars[index] = c;
+        return;
+    }
+
+    method String appendChar(char c) {
+        if (maxLen > len) {
+            let chars[len] = c;
+            let len = len + 1;
+        }
+        return this;
+    }
+
+    method void eraseLastChar() {
+        if (len > 0) {
+            let len = len - 1;
+        }
+        return;
+    }
+
+    method int intValue() {
+        var int index, val, sign;
+        var char c;
+        let index = 0;
+        let val = 0;
+        let sign = 1;
+
+        if(chars[0] = 45) {
+            let sign = -1;
+            let index = 1;
+        }
+
+        while(index<len){
+            let c = chars[index];
+            if((c<48)|(c>57)){
+                return sign*val;
+            }
+            let val = val * 10 + (c-48);
+            let index = index + 1;
+        }
+
+        return val * sign;
+    }
+
+    method void setInt(int n) {
+        let len = 0;
+        if (n < 0) {
+            let n = -n;
+            do appendChar(45);
+        } 
+
+        do setInt2(n);
+        return;
+    }
+
+    method void setInt2(int n) {
+        var int t;
+
+        if (n < 10) {
+            do appendChar(n+48);
+        } else {
+            let t = n / 10;
+            do setInt2(t);
+            do appendChar((n - (t * 10)) - 48);
+        }
+
+        return;
+    }
+
+    function char newLine() {
+        return 128;
+    }
+
+    function char backSpace() {
+        return 129;
+    }
+
+    function char doubleQuote() {
+        return 34;
+    }
+}
